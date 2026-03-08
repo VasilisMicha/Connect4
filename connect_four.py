@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 import random
 from typing import Final
 import gymnasium as gym
@@ -14,7 +15,7 @@ class Turn(Enum):
 class ConnectFour(gym.Env):
     def __init__(self):
         self.action_space = gym.spaces.Discrete(columns)
-        self.observation_space = gym.spaces.Box(low=0, high=1, shape=(3, rows, columns))
+        self.observation_space = gym.spaces.Box(low=0, high=1, shape=(2, rows, columns))
 
 
     def get_turn(self):
@@ -139,7 +140,7 @@ class ConnectFour(gym.Env):
         agent = (self.board == Turn.AGENT.value).astype(np.float32)
         opponent = (self.board == Turn.OPPONENT.value).astype(np.float32)
 
-        return np.stack([agent, opponent], axis=0)
+        return torch.tensor(np.stack([agent, opponent], axis=0), dtype=torch.float32)
 
 
     def get_valid_actions(self):
