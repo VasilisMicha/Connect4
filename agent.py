@@ -1,0 +1,87 @@
+from collections import namedtuple, deque
+from model import DQN
+import numpy as np
+import torch
+import math
+import random
+
+Transition = namedtuple('Transition',
+                        ('state', 'action', 'next_state', 'reward'))
+
+
+class ReplayMemory(object):
+
+    def __init__(self, capacity):
+        self.memory = deque([], maxlen=capacity)
+
+    def push(self, *args):
+        """Save a transition"""
+        self.memory.append(Transition(*args))
+
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
+
+    def __len__(self):
+        return len(self.memory)
+
+
+class DQNAgent:
+
+    def __init__(self, state_size, action_size, batch_size, gamma, epsilon_start, epsilon_end, epsilon_decay, replay_size, tau, lr, env, device):
+        self.state_size = state_size
+        self.action_size = action_size
+        self.batch_size = batch_size
+        self.gamma = gamma  
+        self.epsilon_start = epsilon_start
+        self.epsilon_end = epsilon_end
+        self.epsilon_decay = epsilon_decay
+        self.replay_size = replay_size
+        self.tau = tau
+        self.lr = lr
+        self.policy_net = DQN(actions=self.action_size).to(device)
+        self.targe_net = DQN(actions=self.action_size).to(device)
+        self.steps_done = 0
+        self.device = device
+        self.env = env
+
+
+    def select_action(self, state):
+        sample = random.random()
+        eps_threshold = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
+            math.exp(-1. * self.steps_done / self.epsilon_decay)
+        self.steps_done += 1
+        if sample > eps_threshold:
+            with torch.no_grad():
+                print("RANDOM")
+                values = self.policy_net(state)
+                mask_torch = torch.from_numpy(self.env.get_valid_actions()).bool().to(self.device)
+                masked_values = values.masked_fill(~mask_torch, -1e20)
+                print(masked_values)
+                return masked_values.max(0).indices.view(1, 1)
+        else:
+            print("NOT RANDOM")
+            valid_actions = np.where(self.env.get_valid_actions() == 1)[0]
+            random_action = random.choice(valid_actions)
+            print(random_action)
+            return torch.tensor([[random_action]])
+
+
+    def store_transition(self):
+        pass
+        # Input: It takes the (state, action, next_state, reward, done) tuple from the environment.
+        #
+        # Storage: It pushes this data into your ReplayMemory.
+        
+        
+    def optimize(self):
+        pass
+        # Sampling: It pulls a random batch (e.g., 128 transitions) from memory.
+        #
+        # Target Calculation: It uses the Target Network to calculate what the future reward should have been according to the Bellman Equation.
+        #
+        # Loss & Backprop: It calculates the difference (Loss) between the policy_net prediction and the target, then updates the policy_net weights.
+
+
+    def update_target_network(self):
+        pass
+        # Soft Update: It uses your TAU ($\tau$) value to slowly merge the policy_net weights into the target_net.Stability: This ensures the target values don't jump around too much, which prevents the training from becoming chaotic.

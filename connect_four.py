@@ -144,7 +144,8 @@ class ConnectFour(gym.Env):
 
 
     def get_valid_actions(self):
-        return (self.board[0] == 0).astype(int)
+        mask = (self.board[0] == 0).astype(int)
+        return np.array(mask)
 
 
     def print_info(self, column):
@@ -153,14 +154,14 @@ class ConnectFour(gym.Env):
         print(column)
 
 
-c4 = ConnectFour()
-ch = 'y'
-while ch != 'n':
-    c4.reset()
-
-    while not c4.get_terminated():
-        column = int(input("Choose column: "))
-        c4.step(column)
-
-    ch = input("Want to continue? (y/n): ")
-
+# c4 = ConnectFour()
+# ch = 'y'
+# while ch != 'n':
+#     c4.reset()
+#
+#     while not c4.get_terminated():
+#         column = int(input("Choose column: "))
+#         c4.step(column)
+#
+#     ch = input("Want to continue? (y/n): ")
+#
