@@ -29,8 +29,7 @@ class ReplayMemory(object):
 
 class DQNAgent:
 
-    def __init__(self, state_size, action_size, batch_size, gamma, epsilon_start, epsilon_end, epsilon_decay, replay_size, tau, lr, env, device):
-        self.state_size = state_size
+    def __init__(self, action_size, batch_size, gamma, epsilon_start, epsilon_end, epsilon_decay, replay_size, tau, lr, env, device):
         self.action_size = action_size
         self.batch_size = batch_size
         self.gamma = gamma  
@@ -68,7 +67,7 @@ class DQNAgent:
 
     def store_transition(self, state, action, stats):
         next_state = stats[0].unsqueeze(0)
-        reward = torch.tensor([[stats[1]]])
+        reward = torch.tensor([[stats[1]]], device=self.device)
         terminated = stats[2]
         if terminated:
             self.memory.push(state, action, None, reward)
@@ -110,5 +109,6 @@ class DQNAgent:
         target_net_state_dict = self.target_net.state_dict()
         policy_net_state_dict = self.policy_net.state_dict()
         for key in policy_net_state_dict:
-            target_net_state_dict[key] = policy_net_state_dict[key]*self.tau + target_net_state_dict[key]*(1-self.tau)
+            with torch.no_grad():
+                target_net_state_dict[key] = policy_net_state_dict[key]*self.tau + target_net_state_dict[key]*(1-self.tau)
         self.target_net.load_state_dict(target_net_state_dict)
