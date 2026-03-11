@@ -15,25 +15,16 @@ LR = 1e-4
 
 env = ConnectFour()
 # Get the number of state observations
-state, info = env.reset()
+state, _ = env.reset()
+state = state.unsqueeze(0)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-print(state.shape)
-
-# policy_net = DQN(actions=COLUMNS).to(device)
-# target_net = DQN(actions=COLUMNS).to(device)
-# target_net.load_state_dict(policy_net.state_dict())
-#
-# optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)
-# memory = ReplayMemory(REPLAY_SIZE)
-
 
 agent = DQNAgent(state.shape, COLUMNS, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, REPLAY_SIZE, TAU, LR, env, device)
 
 while True:
-    a = agent.select_action(state)
-    print(f"action: {a}")
-    action = a
-    env.step(action)
+    action = agent.select_action(state)
+    stats = env.step(action.item())
+    agent.store_transition(state, action, stats)
+    state = stats[0].unsqueeze(0)
     if env.get_terminated():
         break

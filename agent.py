@@ -35,6 +35,7 @@ class DQNAgent:
         self.epsilon_start = epsilon_start
         self.epsilon_end = epsilon_end
         self.epsilon_decay = epsilon_decay
+        self.memory = ReplayMemory(replay_size)
         self.replay_size = replay_size
         self.tau = tau
         self.lr = lr
@@ -52,29 +53,31 @@ class DQNAgent:
         self.steps_done += 1
         if sample > eps_threshold:
             with torch.no_grad():
-                print("RANDOM")
                 values = self.policy_net(state)
                 mask_torch = torch.from_numpy(self.env.get_valid_actions()).bool().to(self.device)
                 masked_values = values.masked_fill(~mask_torch, -1e20)
-                print(masked_values)
-                return masked_values.max(0).indices.view(1, 1)
+                return masked_values.max(1).indices.view(1, 1)
         else:
-            print("NOT RANDOM")
             valid_actions = np.where(self.env.get_valid_actions() == 1)[0]
             random_action = random.choice(valid_actions)
-            print(random_action)
             return torch.tensor([[random_action]])
 
 
-    def store_transition(self):
-        pass
-        # Input: It takes the (state, action, next_state, reward, done) tuple from the environment.
-        #
-        # Storage: It pushes this data into your ReplayMemory.
+    def store_transition(self, state, action, stats):
+        next_state = stats[0].unsqueeze(0)
+        reward = torch.tensor(stats[1])
+        terminated = stats[2]
+        if terminated:
+            self.memory.push(state, action, None, reward)
+        else:
+            self.memory.push(state, action, next_state, reward)
         
         
     def optimize(self):
-        pass
+        if len(self.memory) < self.batch_size:
+            return
+        transitions = self.memory.sample(self.batch_size)
+        batch = Transition(*zip(*transitions))
         # Sampling: It pulls a random batch (e.g., 128 transitions) from memory.
         #
         # Target Calculation: It uses the Target Network to calculate what the future reward should have been according to the Bellman Equation.
