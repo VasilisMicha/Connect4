@@ -107,9 +107,8 @@ class DQNAgent:
 
 
     def update_target_network(self):
-        target_net_state_dict = target_net.state_dict()
-        policy_net_state_dict = policy_net.state_dict()
+        target_net_state_dict = self.target_net.state_dict()
+        policy_net_state_dict = self.policy_net.state_dict()
         for key in policy_net_state_dict:
-            target_net_state_dict[key] = policy_net_state_dict[key]*TAU + target_net_state_dict[key]*(1-TAU)
-        target_net.load_state_dict(target_net_state_dict)
-        # Soft Update: It uses your TAU ($\tau$) value to slowly merge the policy_net weights into the target_net.Stability: This ensures the target values don't jump around too much, which prevents the training from becoming chaotic.
+            target_net_state_dict[key] = policy_net_state_dict[key]*self.tau + target_net_state_dict[key]*(1-self.tau)
+        self.target_net.load_state_dict(target_net_state_dict)
