@@ -1,0 +1,5 @@
+csv instead of json
+
+The "Elite Only" Rule: Change it so it only picks an opponent from the last 5 saved models. This will force the win rate down, stop the "fake" level-ups, and force the agent to learn high-level strategies.
+
+The Draw Reward: Since your draw rate is 0, you don't need to worry about it yet. But once you implement the "Elite Only" rule, games will get much harder, and you'll want to start giving that 0.2 reward for draws we discussed to encourage a "never lose" attitude.

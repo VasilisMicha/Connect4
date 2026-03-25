@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# ML models (VERY IMPORTANT)
+models/
+*.pth
+
+# Logs
+logs/
+
+# Temp / Google Drive junk
+.tmp.driveupload/
+
+# OS
+.DS_Store
+Thumbs.db
