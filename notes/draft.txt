@@ -1,4 +1,4 @@
-csv instead of json
+only count win rate with the best model
 
 The "Elite Only" Rule: Change it so it only picks an opponent from the last 5 saved models. This will force the win rate down, stop the "fake" level-ups, and force the agent to learn high-level strategies.
 

@@ -1,0 +1,4 @@
+Games Played,Win Rate against Models,Draw Rate against Models,Win Rate against Random Moves,Average Game Length,Average Loss,Average Max Q value
+100,0,0,0.51,10.3,0.01052651160383123,0.22236917079258484
+200,0,0,0.57,10.45,0.02044984822532911,0.785951125756366
+300,0,0,0.49,10.72,0.030194181665717156,1.1495433606251657

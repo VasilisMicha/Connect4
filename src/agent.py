@@ -49,17 +49,31 @@ class DQNAgent:
 
 
     def select_action(self, state):
+        self.steps_done += 1
+
         sample = random.random()
         eps_threshold = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
             math.exp(-1. * self.steps_done / self.epsilon_decay)
-        self.steps_done += 1
+
         if sample > eps_threshold:
-            with torch.no_grad():
-                values = self.policy_net(state)
-                mask_torch = torch.from_numpy(self.env.get_valid_actions()).bool().to(self.device)
-                masked_values = values.masked_fill(~mask_torch, -1e20)
-                return masked_values.max(1).indices.view(1, 1)
+            self.policy_net.eval()
+            try:
+                with torch.no_grad():
+                    values = self.policy_net(state)
+                    mask_torch = torch.from_numpy(self.env.get_valid_actions()).bool().to(self.device)
+                    masked_values = values.masked_fill(~mask_torch, -1e20)
+                    return masked_values.max(1).indices.view(1, 1)
+            finally:
+                self.policy_net.train()
         else:
+            win_move = self.env.get_immediate_threat(1)
+            if win_move is not None:
+                return torch.tensor([[win_move]], device=self.device, dtype=torch.long)
+
+            block_move = self.env.get_immediate_threat(2)
+            if block_move is not None:
+                return torch.tensor([[block_move]], device=self.device, dtype=torch.long)
+
             valid_actions = np.where(self.env.get_valid_actions() == 1)[0]
             random_action = random.choice(valid_actions)
             return torch.tensor([[random_action]], device=self.device)

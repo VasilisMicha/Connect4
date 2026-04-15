@@ -14,20 +14,30 @@ HUMAN_PIECE = 2
 def get_latest_model_path():
     """Finds the model with the highest version number in the models folder."""
     project_root = Path(__file__).resolve().parent.parent
-    models_dir = project_root / "models"
-    
-    if not models_dir.exists():
+    exp_dir = project_root / "experiments"
+    if not exp_dir.exists():
         print("No models directory found!")
         return None
-        
-    files = [f for f in os.listdir(models_dir) if f.endswith('.pth')]
+
+    experiments = [f for f in exp_dir.iterdir() if f.is_dir()]
+    print("!!!!!!!!!!!!!!!!")
+    print(experiments)
+    if not experiments:
+        return None
+    latest_experiment = max(experiments, key=lambda f: f.stat().st_ctime)
+    print("!!!!!!!!!!!!!!!!")
+    print(latest_experiment)
+    
+    files = [f for f in os.listdir(latest_experiment) if f.endswith('.pth')]
+    print("!!!!!!!!!!!!!!!!")
+    print(files)
     if not files:
         print("No saved models found!")
         return None
         
     # Sort files by the version number (e.g., model_weights_v23.pth -> 23)
     files.sort(key=lambda x: int(x.split('_v')[1].split('.pth')[0]))
-    return models_dir / files[-1]
+    return latest_experiment / files[-1]
 
 def print_board(board):
     """Prints the board nicely to the console."""
@@ -90,6 +100,8 @@ def main():
     
     # 1. Load the AI
     model_path = get_latest_model_path()
+    print("=========")
+    print(model_path)
     if not model_path:
         return
         

@@ -5,11 +5,8 @@ from collections import deque
 project_root = Path(__file__).resolve().parent.parent
 
 class Logger:
-    def __init__(self):
-        # Create logs directory if it doesn't exist
-        logs_dir = project_root / "logs"
-        logs_dir.mkdir(exist_ok=True)
-        self.logs_file = logs_dir / "training_stats.csv"
+    def __init__(self, exp_dir):
+        self.logs_file = exp_dir / "training_stats.csv"
         
         # Initialize CSV with headers
         self.headers = [
@@ -50,10 +47,10 @@ class Logger:
 
         # Logic for Win/Loss/Draw tracking
         if opponent_is_model:
-            if reward > 0: # Win
+            if reward == 1: # Win
                 self.win_history_against_models.append(1)
                 self.draw_history_against_models.append(0)
-            elif reward < 0: # Loss
+            elif reward == -1: # Loss
                 self.win_history_against_models.append(0)
                 self.draw_history_against_models.append(0)
             else: # Draw (Reward is 0)
