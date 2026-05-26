@@ -37,10 +37,10 @@ class ConnectFour(gym.Env):
         self.check_game_completion(row1, action)
         if self.terminated:
             return self.board_to_tensor(), self.reward, self.terminated, False, {}
-        elif self.check_horizontal_block(row1, action):
-            self.reward += 0.2
-        elif self.check_preventative_block(row1, action):
-            self.reward += 0.1
+        # elif self.check_horizontal_block(row1, action):
+        #     self.reward += 0.2
+        # elif self.check_preventative_block(row1, action):
+        #     self.reward += 0.1
 
         # Opponent's turn
         self.turn = Turn.OPPONENT
@@ -101,7 +101,7 @@ class ConnectFour(gym.Env):
             self.reward = 1 if self.turn == Turn.AGENT else -1
         elif not (np.any(self.board[0] == 0)):
             self.terminated = True
-            self.reward = 0.2
+            # self.reward = 0.2
 
 
     def connect_four(self, row, column):
@@ -175,25 +175,26 @@ class ConnectFour(gym.Env):
 
 
     def opponent_action(self, state):
-        if self.opponent:
-            win_move = self.get_immediate_threat(Turn.OPPONENT.value)
-            if win_move is not None:
-                return win_move
-        
-            block_move = self.get_immediate_threat(Turn.AGENT.value)
-            if block_move is not None:
-                return block_move
-
-            flipped_state = torch.flip(state, [1])
-            with torch.no_grad():
-                values = self.opponent(flipped_state)
-                mask_torch = torch.from_numpy(self.get_valid_actions()).bool().to(self.device)
-                masked_values = values.masked_fill(~mask_torch, -1e20)
-                action = masked_values.max(1).indices.view(1, 1)
-                return action.item()
-        else:
-            return self.random_action()
-
+        return self.random_action()
+        # if self.opponent:
+        #     win_move = self.get_immediate_threat(Turn.OPPONENT.value)
+        #     if win_move is not None:
+        #         return win_move
+        #
+        #     block_move = self.get_immediate_threat(Turn.AGENT.value)
+        #     if block_move is not None:
+        #         return block_move
+        #
+        #     flipped_state = torch.flip(state, [1])
+        #     with torch.no_grad():
+        #         values = self.opponent(flipped_state)
+        #         mask_torch = torch.from_numpy(self.get_valid_actions()).bool().to(self.device)
+        #         masked_values = values.masked_fill(~mask_torch, -1e20)
+        #         action = masked_values.max(1).indices.view(1, 1)
+        #         return action.item()
+        # else:
+        #     return self.random_action()
+        #
 
     def random_action(self):
         masks = self.get_valid_actions();
@@ -233,29 +234,30 @@ class ConnectFour(gym.Env):
             
             
     def pick_opponent(self):
-        if len(self.stored_models) > 50:
-            self.stored_models.pop(0) # save RAM
-        elif len(self.stored_models) == 0:
-            return None
-
-        if self.stored_models:
-            if random.random() < 0.5 or len(self.stored_models) <= 1:
-                return self.stored_models[-1] # choose the best model
-            else:
-                if len(self.stored_models) > 5:
-                    start_idx = len(self.stored_models) - 3
-                    return self.stored_models[random.randrange(start_idx, len(self.stored_models) - 1)]
-                elif len(self.stored_models) > 20:
-                    start_idx = len(self.stored_models) - 5
-                    return self.stored_models[random.randrange(start_idx, len(self.stored_models) - 1)]
-                elif len(self.stored_models) > 40:
-                    start_idx = len(self.stored_models) - 20
-                    return self.stored_models[random.randrange(start_idx, len(self.stored_models) - 1)]
-                else:
-                    return self.stored_models[random.randrange(len(self.stored_models) - 1)]
-
-        else:
-            return None
+        return None
+        # if len(self.stored_models) > 50:
+        #     self.stored_models.pop(0) # save RAM
+        # elif len(self.stored_models) == 0:
+        #     return None
+        #
+        # if self.stored_models and random.random() < 0.9:
+        #     if random.random() < 0.5 or len(self.stored_models) <= 1:
+        #         return self.stored_models[-1] # choose the best model
+        #     else:
+        #         if len(self.stored_models) > 5:
+        #             start_idx = len(self.stored_models) - 3
+        #             return self.stored_models[random.randrange(start_idx, len(self.stored_models) - 1)]
+        #         elif len(self.stored_models) > 20:
+        #             start_idx = len(self.stored_models) - 5
+        #             return self.stored_models[random.randrange(start_idx, len(self.stored_models) - 1)]
+        #         elif len(self.stored_models) > 40:
+        #             start_idx = len(self.stored_models) - 20
+        #             return self.stored_models[random.randrange(start_idx, len(self.stored_models) - 1)]
+        #         else:
+        #             return self.stored_models[random.randrange(len(self.stored_models) - 1)]
+        #
+        # else:
+        #     return None
 
 
     def get_turn(self):

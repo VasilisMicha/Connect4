@@ -1,0 +1,12 @@
+{
+    "columns": 7,
+    "batch_size": 256,
+    "gamma": 0.99,
+    "eps_start": 0.9,
+    "eps_end": 0.01,
+    "eps_decay": 15000,
+    "replay_size": 100000,
+    "tau": 0.001,
+    "lr": 5e-05,
+    "win_rate": 0.6
+}

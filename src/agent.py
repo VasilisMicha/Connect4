@@ -112,9 +112,6 @@ class DQNAgent:
         with torch.no_grad():
             next_qs = self.target_net(non_final_next_states)
             
-            # The top row is index 0. If both channels (agent=0, opponent=1) 
-            # are 0 at the top row, the column is valid.
-            # Shape of non_final_next_states: (batch, channels, rows, cols)
             valid_mask = (non_final_next_states[:, 0, 0, :] == 0) & (non_final_next_states[:, 1, 0, :] == 0)
             
             masked_next_qs = next_qs.masked_fill(~valid_mask, -1e20)
