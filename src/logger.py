@@ -39,6 +39,10 @@ class Logger:
         self.interval_loss = 0
         self.interval_max_q = 0
 
+    def log_evaluation(self, reward):
+        self.win_history_against_random.append(1 if reward > 0 else 0)
+        self.win_rate_against_random = sum(self.win_history_against_random) / len(self.win_history_against_random)
+
     def log_training(self, reward, opponent_is_model, steps, avg_loss, avg_max_q_value):
         self.games_played += 1
         self.interval_loss += avg_loss

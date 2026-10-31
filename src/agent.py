@@ -48,11 +48,12 @@ class DQNAgent:
         self.env = env
 
 
-    def select_action(self, state):
-        self.steps_done += 1
+    def select_action(self, state, evaluate=False):
+        if not evaluate:
+            self.steps_done += 1
 
         sample = random.random()
-        eps_threshold = self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
+        eps_threshold = -1.0 if evaluate else self.epsilon_end + (self.epsilon_start - self.epsilon_end) * \
             math.exp(-1. * self.steps_done / self.epsilon_decay)
 
         if sample > eps_threshold:

@@ -37,10 +37,10 @@ class ConnectFour(gym.Env):
         self.check_game_completion(row1, action)
         if self.terminated:
             return self.board_to_tensor(), self.reward, self.terminated, False, {}
-        elif self.check_horizontal_block(row1, action):
-            self.reward += 0.2
-        elif self.check_preventative_block(row1, action):
-            self.reward += 0.1
+        # elif self.check_horizontal_block(row1, action):
+        #     self.reward += 0.2
+        # elif self.check_preventative_block(row1, action):
+        #     self.reward += 0.1
 
         # Opponent's turn
         self.turn = Turn.OPPONENT
@@ -54,10 +54,10 @@ class ConnectFour(gym.Env):
         return self.board_to_tensor(), self.reward, self.terminated, False, {}
 
 
-    def reset(self, *, seed: int | None = None, options: dict | None = None):
+    def reset(self, *, seed: int | None = None, options: dict | None = None, force_random_opponent: bool = False):
         super().reset(seed=seed)
         self.board = np.zeros([rows, columns])
-        self.opponent = self.pick_opponent() 
+        self.opponent = None if force_random_opponent else self.pick_opponent() 
         self.turn = random.choice(list(Turn))
         if (self.turn == Turn.OPPONENT):
             column = self.opponent_action(self.board_to_tensor().unsqueeze(0).to(self.device))
@@ -101,7 +101,6 @@ class ConnectFour(gym.Env):
             self.reward = 1 if self.turn == Turn.AGENT else -1
         elif not (np.any(self.board[0] == 0)):
             self.terminated = True
-            self.reward = 0.2
 
 
     def connect_four(self, row, column):
